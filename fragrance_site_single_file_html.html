@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NuScent — Find Your Fragrance</title>
+  <meta name="description" content="Discover designer and niche fragrances with an interactive quiz, mobile-friendly design, and smooth snap scrolling." />
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --panel: #12141a;
+      --muted: #9aa3af;
+      --text: #e5e7eb;
+      --accent: #7c3aed; /* violet */
+      --accent-2: #10b981; /* emerald */
+      --danger: #ef4444;
+      --ring: 0 0 0 3px rgba(124, 58, 237, .35);
+      --radius: 18px;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100%; scroll-behavior: smooth }
+    body {
+      margin: 0; background: radial-gradient(1200px 700px at 80% -10%, rgba(124,58,237,.15), transparent),
+      radial-gradient(800px 500px at 20% 110%, rgba(16,185,129,.12), transparent), var(--bg);
+      color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.45;
+    }
+
+    /* Sticky top nav */
+    .topbar { position: fixed; inset-inline: 0; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; backdrop-filter: blur(10px); background: color-mix(in hsl, var(--panel) 72%, transparent); border-bottom: 1px solid rgba(255,255,255,.06); z-index: 50 }
+    .brand { display:flex; align-items:center; gap:10px; font-weight: 800; letter-spacing: .5px }
+    .brand .logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); display:grid; place-items:center; font-weight:800 }
+    .brand span { font-size: 1.05rem }
+
+    .nav { display:flex; gap: 8px }
+    .nav a { text-decoration: none; color: var(--text); opacity:.85; padding: 8px 12px; border-radius: 10px }
+    .nav a:hover { background: rgba(255,255,255,.06); opacity: 1 }
+
+    .cta { display:flex; gap: 8px }
+    .btn { border: 0; background: var(--accent); color: white; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 700; box-shadow: var(--shadow); transition: transform .06s ease }
+    .btn:hover { transform: translateY(-1px) }
+    .btn.secondary { background: #1f2937 }
+    .btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,.12) }
+
+    /* Mobile menu */
+    .menu-toggle { display:none }
+    @media (max-width: 900px){
+      .nav { display:none }
+      .menu-toggle { display: inline-flex; gap: 8px }
+    }
+
+    .sheet { position: fixed; inset: 0; background: rgba(0,0,0,.5); display:none; z-index: 60 }
+    .sheet[data-open="true"] { display:block }
+    .sheet-panel { position:absolute; inset-block: 0; inset-inline-end: 0; width: min(86vw, 420px); background: var(--panel); padding: 18px; border-top-left-radius: var(--radius); border-bottom-left-radius: var(--radius); box-shadow: var(--shadow) }
+    .sheet a { display:block; color: var(--text); text-decoration: none; padding: 12px; border-radius: 10px }
+    .sheet a:hover { background: rgba(255,255,255,.06) }
+
+    /* Snap-scrolling sections */
+    main { height: 100svh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-padding-top: 64px }
+    section { min-height: 100svh; scroll-snap-align: start; display:grid; align-content: center; padding: clamp(16px, 4vw, 48px); padding-top: 96px; gap: 22px }
+
+    .hero { grid-template-columns: 1fr; text-align: center }
+    .hero h1 { font-size: clamp(1.8rem, 3.4vw + 1rem, 3.4rem); line-height: 1.05; margin: 0 }
+    .hero p { color: var(--muted); max-width: 60ch; margin-inline: auto }
+    .hero .actions { display:flex; flex-wrap: wrap; gap: 10px; justify-content: center }
+
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow) }
+
+    /* Quiz modal */
+    dialog.modal { border: 0; border-radius: 18px; background: var(--panel); color: var(--text); width: min(100%, 760px); padding: 0; box-shadow: var(--shadow) }
+    .modal header { padding: 18px 22px; display:flex; align-items:center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.06) }
+    .modal .content { padding: 22px; display: grid; gap: 16px }
+    .progress { height: 8px; background: rgba(255,255,255,.08); border-radius: 999px; overflow:hidden }
+    .progress > span { display:block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)) }
+    .q { display:grid; gap: 12px }
+    .options { display:grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) }
+    .opt { border: 1px solid rgba(255,255,255,.12); padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.02); cursor:pointer; text-align: left; font-weight: 600 }
+    .opt[data-selected="true"] { outline: var(--ring); border-color: transparent; background: rgba(124,58,237,.12) }
+
+    .modal footer { display:flex; justify-content: space-between; padding: 16px 22px; border-top: 1px solid rgba(255,255,255,.06) }
+
+    /* Explore grid */
+    .filters { display:flex; flex-wrap: wrap; gap: 10px }
+    .input, select { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid rgba(255,255,255,.12); padding: 10px 12px; border-radius: 12px; outline: none }
+    .input:focus, select:focus { box-shadow: var(--ring); border-color: transparent }
+
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px }
+    .item { position: relative }
+    .badge { position:absolute; top: 10px; left: 10px; padding: 6px 10px; border-radius: 999px; background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.25); font-size: .75rem; font-weight: 800; letter-spacing:.3px }
+    .fav { position:absolute; top: 10px; right: 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); padding: 8px; cursor: pointer }
+    .fav[aria-pressed="true"] { background: rgba(124,58,237,.25) }
+
+    .item h3 { margin: 10px 0 6px; font-size: 1.05rem }
+    .item p { margin: 0; color: var(--muted) }
+    .tags { display:flex; flex-wrap: wrap; gap: 6px; margin-top: 10px }
+    .tag { font-size: .72rem; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04) }
+
+    .houses { display:flex; gap: 8px; overflow:auto; padding-bottom: 8px }
+    .chip { white-space: nowrap; border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); padding: 8px 12px; border-radius: 12px; cursor:pointer }
+    .chip[data-active="true"] { background: rgba(124,58,237,.18); outline: var(--ring); border-color: transparent }
+
+    /* Reviews */
+    .reviews { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px }
+    .review { display:grid; gap:10px }
+
+    /* Footer */
+    footer.site { padding: 36px 16px; text-align: center; color: var(--muted) }
+
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12) }
+
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
+  </style>
+</head>
+<body>
+  <!-- Top bar -->
+  <div class="topbar" role="navigation" aria-label="Primary">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">Ｎ</div>
+      <span>NuScent</span>
+    </div>
+
+    <nav class="nav">
+      <a href="#home">Home</a>
+      <a href="#explore">Explore</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#about">About</a>
+    </nav>
+
+    <div class="cta">
+      <button class="btn ghost" id="openQuizBtn">Take Quiz</button>
+      <button class="btn secondary" id="favoritesBtn">Favorites</button>
+      <button class="btn menu-toggle" id="openMenu" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+
+  <!-- Mobile sheet -->
+  <div class="sheet" id="sheet" data-open="false" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="sheet-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px">
+        <div class="brand"><div class="logo">Ｎ</div><span>NuScent</span></div>
+        <button class="btn ghost" id="closeMenu">Close</button>
+      </div>
+      <a href="#home" data-close>Home</a>
+      <a href="#explore" data-close>Explore</a>
+      <a href="#quiz" data-close>Quiz</a>
+      <a href="#reviews" data-close>Reviews</a>
+      <a href="#about" data-close>About</a>
+    </div>
+  </div>
+
+  <!-- Snap-scrolling layout -->
+  <main id="viewport">
+    <section id="home" class="hero">
+      <div class="card" style="max-width:940px; margin-inline:auto">
+        <div style="display:grid; gap:16px; justify-items:center">
+          <span class="pill">👃 Find your signature • Fast</span>
+          <h1>Designer & Niche picks matched to <em>your</em> vibe</h1>
+          <p>Answer 10 quick questions and get tailored recommendations from houses like Dior, Chanel, YSL, Prada, Creed, Parfums de Marly, Tom Ford, Amouage, Xerjoff, and more. Optimized for phone with buttery snap transitions.</p>
+          <div class="actions">
+            <button class="btn" id="heroQuiz">Start the 60‑second Quiz</button>
+            <a class="btn secondary" href="#explore">Browse All</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="explore">
+      <header style="display:flex; justify-content:space-between; align-items:end; gap:12px; flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0">Explore Fragrances</h2>
+          <p style="margin:6px 0 0; color:var(--muted)">Filter by house, style, occasion, and budget. Tap ☆ to save favorites.</p>
+        </div>
+        <div class="filters">
+          <input id="search" class="input" placeholder="Search name, house, note…" />
+          <select id="styleSelect">
+            <option value="">All styles</option>
+            <option>fresh</option>
+            <option>citrus</option>
+            <option>aquatic</option>
+            <option>green</option>
+            <option>woody</option>
+            <option>spicy</option>
+            <option>sweet</option>
+            <option>smoky</option>
+            <option>amber</option>
+          </select>
+          <select id="budgetSelect">
+            <option value="">Any budget</option>
+            <option value="under-60">Under $60</option>
+            <option value="60-120">$60–$120</option>
+            <option value="120-250">$120–$250</option>
+            <option value="250+">$250+</option>
+          </select>
+          <select id="typeSelect">
+            <option value="">Designer + Niche</option>
+            <option value="designer">Designer</option>
+            <option value="niche">Niche</option>
+          </select>
+          <button class="btn ghost" id="clearFilters">Clear</button>
+        </div>
+      </header>
+
+      <div style="margin-top:12px" class="houses" id="houseChips" aria-label="Houses"></div>
+
+      <div class="grid" id="catalog"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="card" style="max-width:920px; margin-inline:auto">
+        <h2 style="margin-top:0">Take the Quiz</h2>
+        <p style="margin-top:0; color:var(--muted)">We’ll ask 10 short questions and instantly suggest a range of fragrances across big designer and niche houses.</p>
+        <button class="btn" id="launchQuiz">Launch Quiz</button>
+      </div>
+      <div class="card" id="recommendations" style="max-width:100%; margin-top:12px; display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
+          <h3 style="margin:0">Your Matches</h3>
+          <button class="btn ghost" id="copyShare">Share my results</button>
+        </div>
+        <p id="recMeta" style="color:var(--muted); margin:8px 0 16px"></p>
+        <div class="grid" id="recGrid"></div>
+      </div>
+    </section>
+
+    <section id="reviews">
+      <header>
+        <h2 style="margin:0">Community Buzz</h2>
+        <p style="margin:6px 0 0; color:var(--muted)">What people love about these picks.</p>
+      </header>
+      <div class="reviews">
+        <div class="card review"><strong>“Office‑friendly but still unique.”</strong><p class="muted">Try <em>Gentle Fluidity Silver</em> if you want clean, musky, and subtly spicy without shouting.</p><span class="pill">🕘 8–10h • Moderate</span></div>
+        <div class="card review"><strong>“My date‑night cheat code.”</strong><p class="muted"><em>Layton</em> and <em>Herod</em> are sweet‑spicy vanillas that draw compliments without being cloying.</p><span class="pill">🍂 Fall/Winter • Date</span></div>
+        <div class="card review"><strong>“Gym & fresh‑out‑the‑shower.”</strong><p class="muted"><em>Nautica Voyage</em> and <em>Versace Pour Homme</em> are cheap‑and‑cheerful aquatics for daily wear.</p><span class="pill">💧 Fresh • Budget</span></div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="card" style="max-width:880px; margin-inline:auto">
+        <h2 style="margin-top:0">About NuScent</h2>
+        <p>NuScent is a passion project that curates the most popular designer and niche houses—Dior, Chanel, YSL, Prada, Armani, Versace, Tom Ford, Creed, Parfums de Marly, Initio, Xerjoff, Amouage, Nishane, Byredo, Maison Francis Kurkdjian, and more—and pairs them to your preferences. No sponsorships, just vibes.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px">
+          <span class="pill">📱 Mobile‑first</span>
+          <span class="pill">⚡️ Instant results</span>
+          <span class="pill">🧠 Local scoring — no tracking</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">Made with ❤️ for fragrance nerds. Save to homescreen for an app‑like feel.</footer>
+
+  <!-- Quiz Modal -->
+  <dialog class="modal" id="quizModal">
+    <form method="dialog" class="modal">
+      <header>
+        <strong>Fragrance Fit Quiz</strong>
+        <button class="btn ghost" value="cancel" aria-label="Close quiz">Close</button>
+      </header>
+      <div class="content">
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        <div id="qWrap" class="q"></div>
+      </div>
+      <footer>
+        <button class="btn secondary" id="prevQ" type="button">Back</button>
+        <div style="display:flex; gap:8px">
+          <button class="btn ghost" id="skipQ" type="button">Skip</button>
+          <button class="btn" id="nextQ" type="button">Next</button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
+  <template id="itemTpl">
+    <div class="card item">
+      <div class="badge" data-badge></div>
+      <button class="fav" title="Save favorite" aria-pressed="false">☆</button>
+      <div style="height:130px; border-radius:12px; border:1px dashed rgba(255,255,255,.12); display:grid; place-items:center; background: rgba(255,255,255,.02); font-size:2rem" aria-hidden="true">💧</div>
+      <h3 data-title></h3>
+      <p data-sub></p>
+      <div class="tags" data-tags></div>
+      <div style="display:flex; gap:8px; margin-top:12px">
+        <button class="btn ghost" data-copy>Copy name</button>
+        <a class="btn secondary" target="_blank" rel="noopener" data-search>Search</a>
+      </div>
+    </div>
+  </template>
+
+  <script>
+  // --- Dataset (designer + niche big houses) ---
+  const FRAGS = [
+    // Designer staples
+    { id:"sauvage-edt", name:"Sauvage EDT", brand:"Dior", type:"designer", styles:["fresh","citrus","spicy"], occasions:["casual","club","outdoors"], seasons:["spring","summer"], strength:"EDT", budget:"120-250", longevity:"8h", projection:"strong", notes:["bergamot","pepper","ambroxan"] },
+    { id:"bleu-edp", name:"Bleu de Chanel EDP", brand:"Chanel", type:"designer", styles:["fresh","woody","citrus"], occasions:["office","date","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8h", projection:"moderate", notes:["grapefruit","incense","cedar"] },
+    { id:"ysl-y-edp", name:"Y EDP", brand:"Yves Saint Laurent", type:"designer", styles:["fresh","sweet","woody"], occasions:["office","club","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["apple","sage","tonka"] },
+    { id:"prada-carbon", name:"Luna Rossa Carbon", brand:"Prada", type:"designer", styles:["fresh","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["lavender","ambroxan","pepper"] },
+    { id:"versace-dylan", name:"Dylan Blue", brand:"Versace", type:"designer", styles:["fresh","spicy","woody"], occasions:["club","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["calabrian bergamot","incense"] },
+    { id:"acqua-gio-profondo", name:"Acqua di Giò Profondo", brand:"Giorgio Armani", type:"designer", styles:["aquatic","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","rosemary"] },
+    { id:"armani-code-parfum", name:"Armani Code Parfum", brand:"Giorgio Armani", type:"designer", styles:["sweet","amber","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"Parfum", budget:"120-250", longevity:"8-10h", projection:"moderate", notes:["iris","tonka","cedar"] },
+    { id:"prada-lhomme", name:"L'Homme", brand:"Prada", type:"designer", styles:["fresh","powdery","clean"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["iris","neroli","violet"] },
+    { id:"montblanc-explorer", name:"Explorer", brand:"Montblanc", type:"designer", styles:["fresh","woody"], occasions:["casual","outdoors"], seasons:["spring","summer","fall"], strength:"EDP", budget:"60-120", longevity:"6-8h", projection:"moderate", notes:["bergamot","vetiver","patchouli"] },
+    { id:"versace-pour-homme", name:"Versace Pour Homme", brand:"Versace", type:"designer", styles:["citrus","fresh","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"5-7h", projection:"moderate", notes:["lemon","neroli","tonka"] },
+    { id:"nautica-voyage", name:"Nautica Voyage", brand:"Nautica", type:"designer", styles:["aquatic","fresh"], occasions:["gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"under-60", longevity:"5-7h", projection:"moderate", notes:["green apple","lotus","musk"] },
+
+    // Niche heavy hitters
+    { id:"pdm-layton", name:"Layton", brand:"Parfums de Marly", type:"niche", styles:["sweet","spicy","amber"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["apple","vanilla","cardamom"] },
+    { id:"pdm-herod", name:"Herod", brand:"Parfums de Marly", type:"niche", styles:["sweet","spicy","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["tobacco","vanilla","cinnamon"] },
+    { id:"initio-side-effect", name:"Side Effect", brand:"Initio", type:"niche", styles:["sweet","boozy","spicy"], occasions:["date","evening","club"], seasons:["fall","winter"], strength:"Extrait", budget:"250+", longevity:"12h", projection:"strong", notes:["rum","vanilla","cinnamon"] },
+    { id:"tf-oud-wood", name:"Oud Wood", brand:"Tom Ford", type:"niche", styles:["woody","smoky","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["oud","cardamom","sandalwood"] },
+    { id:"tf-tobacco-vanille", name:"Tobacco Vanille", brand:"Tom Ford", type:"niche", styles:["sweet","spicy","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["tobacco","vanilla","cacao"] },
+    { id:"creed-aventus", name:"Aventus", brand:"Creed", type:"niche", styles:["fresh","fruity","woody"], occasions:["date","office","formal"], seasons:["spring","summer","fall"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["pineapple","birch","musk"] },
+    { id:"creed-git", name:"Green Irish Tweed", brand:"Creed", type:"niche", styles:["green","fresh"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8h", projection:"moderate", notes:["lemon verbena","violet leaf","ambergris"] },
+    { id:"mfc-br540", name:"Baccarat Rouge 540", brand:"Maison Francis Kurkdjian", type:"niche", styles:["sweet","amber","airy"], occasions:["date","evening","club"], seasons:["all"], strength:"EDP", budget:"250+", longevity:"12h", projection:"strong", notes:["saffron","amberwood","cedar"] },
+    { id:"mfc-gfs", name:"Gentle Fluidity Silver", brand:"Maison Francis Kurkdjian", type:"niche", styles:["fresh","musky","aromatic"], occasions:["office","casual","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["juniper","musk","amber"] },
+    { id:"nishane-hacivat", name:"Hacivat", brand:"Nishane", type:"niche", styles:["fresh","fruity","woody"], occasions:["formal","date"], seasons:["spring","summer","fall"], strength:"Extrait", budget:"250+", longevity:"10-12h", projection:"strong", notes:["pineapple","grapefruit","oakmoss"] },
+    { id:"xerjoff-naxos", name:"Naxos", brand:"Xerjoff", type:"niche", styles:["sweet","spicy","amber"], occasions:["evening","date"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["honey","tobacco","vanilla"] },
+    { id:"amouage-reflection-man", name:"Reflection Man", brand:"Amouage", type:"niche", styles:["fresh","floral","woody"], occasions:["formal","office","wedding"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"strong", notes:["neroli","jasmine","sandalwood"] },
+    { id:"byredo-gypsy", name:"Gypsy Water", brand:"Byredo", type:"niche", styles:["fresh","woody","aromatic"], occasions:["casual","office"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"6-8h", projection:"soft", notes:["bergamot","juniper","vanilla"] },
+
+    // More designer bangers
+    { id:"dior-homme-intense", name:"Dior Homme Intense", brand:"Dior", type:"designer", styles:["sweet","powdery","woody"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"10h", projection:"moderate", notes:["iris","cacao","cedar"] },
+    { id:"ysl-tuxedo", name:"Tuxedo", brand:"Yves Saint Laurent (Le Vestiaire)", type:"niche", styles:["spicy","amber","sweet"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["patchouli","vanilla","spices"] },
+    { id:"prada-ldros", name:"Luna Rossa Ocean EDP", brand:"Prada", type:"designer", styles:["fresh","aquatic","sweet"], occasions:["office","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","iris","vanilla"] },
+  ];
+
+  const HOUSES = Array.from(new Set(FRAGS.map(f => f.brand))).sort();
+
+  // --- Utilities ---
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const fmtPrice = tier => ({"under-60":"Under $60","60-120":"$60–$120","120-250":"$120–$250","250+":"$250+"}[tier] || tier);
+
+  const FAVORITES_KEY = 'nuscent:favorites';
+  const QUIZ_KEY = 'nuscent:quiz';
+  const LS = {
+    get(k, d=null){ try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d }},
+    set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+  };
+
+  // --- Render house chips ---
+  function renderHouses(){
+    const wrap = $('#houseChips');
+    wrap.innerHTML = '';
+    const all = Object.assign(document.createElement('button'),{className:'chip',textContent:'All Houses'});
+    all.dataset.active = 'true';
+    wrap.appendChild(all);
+    for(const h of HOUSES){
+      const b = Object.assign(document.createElement('button'),{className:'chip',textContent:h});
+      wrap.appendChild(b);
+    }
+    wrap.addEventListener('click', (e)=>{
+      if(!(e.target instanceof HTMLElement) || !e.target.classList.contains('chip')) return;
+      $$('#houseChips .chip').forEach(x=>x.dataset.active='false');
+      e.target.dataset.active = 'true';
+      state.house = e.target.textContent === 'All Houses' ? '' : e.target.textContent;
+      renderCatalog();
+    });
+  }
+
+  // --- Catalog filtering ---
+  const state = { q:'', style:'', budget:'', type:'', house:'' };
+
+  function applyFilters(items){
+    return items.filter(f=>
+      (!state.q || (f.name+f.brand+f.styles.join(' ')+f.notes.join(' ')).toLowerCase().includes(state.q.toLowerCase())) &&
+      (!state.style || f.styles.includes(state.style)) &&
+      (!state.budget || f.budget === state.budget) &&
+      (!state.type || f.type === state.type) &&
+      (!state.house || f.brand === state.house)
+    );
+  }
+
+  function renderCatalog(list=FRAGS){
+    const wrap = $('#catalog');
+    wrap.innerHTML = '';
+    const favs = new Set(LS.get(FAVORITES_KEY, []));
+    for(const f of applyFilters(list)){
+      const tpl = document.importNode($('#itemTpl').content, true);
+      tpl.querySelector('[data-badge]').textContent = `${f.type === 'niche' ? 'Niche' : 'Designer'} • ${f.brand}`;
+      tpl.querySelector('[data-title]').textContent = f.name;
+      tpl.querySelector('[data-sub]').textContent = `${f.styles.join(' · ')} • ${fmtPrice(f.budget)}`;
+      const tags = tpl.querySelector('[data-tags]');
+      [f.seasons.join('/'), ...f.occasions].slice(0,4).forEach(t=>{
+        const span = Object.assign(document.createElement('span'), { className:'tag', textContent: t }); tags.appendChild(span);
+      });
+      const favBtn = tpl.querySelector('.fav');
+      favBtn.setAttribute('aria-pressed', favs.has(f.id) ? 'true' : 'false');
+      favBtn.addEventListener('click', ()=>{
+        const set = new Set(LS.get(FAVORITES_KEY, []));
+        if(set.has(f.id)) set.delete(f.id); else set.add(f.id);
+        LS.set(FAVORITES_KEY, [...set]);
+        favBtn.setAttribute('aria-pressed', set.has(f.id) ? 'true' : 'false');
+      });
+      tpl.querySelector('[data-copy]').addEventListener('click', async ()=>{
+        await navigator.clipboard.writeText(`${f.brand} ${f.name}`);
+        alert('Copied to clipboard');
+      });
+      const searchA = tpl.querySelector('[data-search]');
+      searchA.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`;
+      searchA.textContent = 'Find online';
+      wrap.appendChild(tpl);
+    }
+  }
+
+  // --- Search & filters events ---
+  $('#search').addEventListener('input', e=>{ state.q = e.target.value; renderCatalog(); });
+  $('#styleSelect').addEventListener('change', e=>{ state.style = e.target.value; renderCatalog(); });
+  $('#budgetSelect').addEventListener('change', e=>{ state.budget = e.target.value; renderCatalog(); });
+  $('#typeSelect').addEventListener('change', e=>{ state.type = e.target.value; renderCatalog(); });
+  $('#clearFilters').addEventListener('click', ()=>{
+    state.q=state.style=state.budget=state.type=state.house='';
+    $('#search').value=''; $('#styleSelect').value=''; $('#budgetSelect').value=''; $('#typeSelect').value='';
+    $$('#houseChips .chip').forEach((c,i)=>c.dataset.active = i===0 ? 'true' : 'false');
+    renderCatalog();
+  });
+
+  // --- Favorites quick view ---
+  $('#favoritesBtn').addEventListener('click', ()=>{
+    const ids = new Set(LS.get(FAVORITES_KEY, []));
+    const favs = FRAGS.filter(f => ids.has(f.id));
+    if(!favs.length) { alert('No favorites yet. Tap ☆ on any fragrance.'); return }
+    state.q=state.style=state.budget=state.type=state.house='';
+    $('#search').value=''; $('#styleSelect').value=''; $('#budgetSelect').value=''; $('#typeSelect').value='';
+    $$('#houseChips .chip').forEach((c,i)=>c.dataset.active = i===0 ? 'true' : 'false');
+    renderCatalog(favs);
+    location.hash = '#explore';
+  });
+
+  // --- Mobile menu ---
+  $('#openMenu').addEventListener('click', ()=> $('#sheet').dataset.open = 'true');
+  $('#closeMenu').addEventListener('click', ()=> $('#sheet').dataset.open = 'false');
+  $('#sheet').addEventListener('click', (e)=>{ if(e.target.matches('[data-close], .sheet')) $('#sheet').dataset.open='false' });
+
+  // --- Quiz engine ---
+  const QUESTIONS = [
+    { key:'season', text:'What season are you buying for first?', options:['spring','summer','fall','winter','all'] },
+    { key:'vibe', text:'Which vibe fits you best?', options:['fresh','citrus','aquatic','green','woody','spicy','sweet','smoky','amber'] },
+    { key:'occasion', text:'Primary occasion?', options:['office','date','club','gym','casual','formal','outdoors'] },
+    { key:'type', text:'Designer or niche?', options:['designer','niche','both'] },
+    { key:'budget', text:'Budget range?', options:['under-60','60-120','120-250','250+'] },
+    { key:'strength', text:'Juice strength preference?', options:['EDT','EDP','Parfum/Extrait','no preference'] },
+    { key:'longevity', text:'Longevity priority?', options:['6h','8h','10h+','no preference'] },
+    { key:'projection', text:'Projection?', options:['soft','moderate','strong','no preference'] },
+    { key:'avoid', text:'Any note to avoid?', options:['none','vanilla','oud','amber','lavender','tobacco'] },
+    { key:'flex', text:'Do you prefer versatile “one‑bottle” picks?', options:['yes','no'] },
+  ];
+
+  let qi = 0; // question index
+  let answers = {};
+
+  function openQuiz(){
+    qi = 0; answers = {}; updateProgress(); renderQ();
+    const dlg = $('#quizModal');
+    if(typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  function updateProgress(){ $('#progressBar').style.width = ((qi)/QUESTIONS.length*100) + '%'; }
+
+  function renderQ(){
+    const q = QUESTIONS[qi];
+    const wrap = $('#qWrap');
+    wrap.innerHTML = '';
+    const h = Object.assign(document.createElement('h3'), { textContent: `${qi+1}/${QUESTIONS.length} — ${q.text}` });
+    wrap.appendChild(h);
+    const grid = Object.assign(document.createElement('div'), { className: 'options' });
+    wrap.appendChild(grid);
+    for(const opt of q.options){
+      const b = Object.assign(document.createElement('button'), { className:'opt', type:'button', textContent: label(opt) });
+      if(answers[q.key] === opt) b.dataset.selected = 'true';
+      b.addEventListener('click', ()=>{ answers[q.key] = opt; $$('.opt').forEach(o=>o.dataset.selected='false'); b.dataset.selected='true'; });
+      grid.appendChild(b);
+    }
+    $('#prevQ').disabled = qi === 0;
+    $('#nextQ').textContent = qi === QUESTIONS.length - 1 ? 'See results' : 'Next';
+  }
+
+  function label(v){
+    const map = { 'EDP':'EDP', 'EDT':'EDT', 'Parfum/Extrait':'Parfum/Extrait', 'no preference':'No preference', 'under-60':'Under $60', '60-120':'$60–$120', '120-250':'$120–$250','250+':'$250+' };
+    return map[v] || v[0].toUpperCase() + v.slice(1);
+  }
+
+  function scoreFragrance(f, a){
+    let s = 0;
+    // exact and soft matches
+    if(a.season && (f.seasons.includes(a.season) || f.seasons.includes('all'))) s += 2;
+    if(a.vibe && f.styles.includes(a.vibe)) s += 3;
+    if(a.occasion && f.occasions.includes(a.occasion)) s += 2;
+
+    if(a.type && a.type !== 'both' && f.type === a.type) s += 2;
+    if(a.budget && f.budget === a.budget) s += 2;
+
+    if(a.strength && a.strength !== 'no preference'){
+      const want = a.strength.includes('Parfum') ? ['Parfum','Extrait'] : [a.strength];
+      if(want.some(w => f.strength.includes(w))) s += 1;
+    }
+
+    if(a.longevity && a.longevity !== 'no preference'){
+      const map = { '6h':6, '8h':8, '10h+':10 };
+      const need = map[a.longevity];
+      const have = parseInt(f.longevity);
+      if(have >= need) s += 1;
+    }
+
+    if(a.projection && a.projection !== 'no preference' && f.projection === a.projection) s += 1;
+    if(a.avoid && a.avoid !== 'none' && f.notes.includes(a.avoid)) s -= 3;
+
+    if(a.flex === 'yes' && (f.seasons.includes('all') || (f.styles.includes('fresh') && f.occasions.includes('office')))) s += 1;
+
+    return s;
+  }
+
+  function computeResults(){
+    const ranked = FRAGS.map(f => ({ f, s: scoreFragrance(f, answers) }))
+                        .sort((a,b) => b.s - a.s);
+    // Ensure variety by mixing top niches/designers if both requested or "both"
+    const picks = [];
+    const wantType = answers.type === 'both' || !answers.type ? null : answers.type;
+    if(!wantType){
+      const top = ranked.slice(0, 12);
+      const niche = top.filter(x=>x.f.type==='niche').slice(0,3);
+      const designer = top.filter(x=>x.f.type==='designer').slice(0,3);
+      const rest = top.filter(x=>!niche.includes(x) && !designer.includes(x)).slice(0,4);
+      picks.push(...niche, ...designer, ...rest);
+    } else {
+      picks.push(...ranked.slice(0, 10));
+    }
+    return picks.map(x=>x.f).slice(0, 10);
+  }
+
+  function showRecommendations(){
+    const list = computeResults();
+    const wrap = $('#recGrid');
+    wrap.innerHTML = '';
+    const favs = new Set(LS.get(FAVORITES_KEY, []));
+    for(const f of list){
+      const tpl = document.importNode($('#itemTpl').content, true);
+      tpl.querySelector('[data-badge]').textContent = `${f.type === 'niche' ? 'Niche' : 'Designer'} • ${f.brand}`;
+      tpl.querySelector('[data-title]').textContent = f.name;
+      tpl.querySelector('[data-sub]').textContent = `${f.styles.join(' · ')} • ${fmtPrice(f.budget)}`;
+      const tags = tpl.querySelector('[data-tags]');
+      [f.seasons.join('/'), ...f.occasions].slice(0,4).forEach(t=>{
+        const span = Object.assign(document.createElement('span'), { className:'tag', textContent: t }); tags.appendChild(span);
+      });
+      const favBtn = tpl.querySelector('.fav');
+      favBtn.setAttribute('aria-pressed', favs.has(f.id) ? 'true' : 'false');
+      favBtn.addEventListener('click', ()=>{
+        const set = new Set(LS.get(FAVORITES_KEY, []));
+        if(set.has(f.id)) set.delete(f.id); else set.add(f.id);
+        LS.set(FAVORITES_KEY, [...set]);
+        favBtn.setAttribute('aria-pressed', set.has(f.id) ? 'true' : 'false');
+      });
+      tpl.querySelector('[data-copy]').addEventListener('click', async ()=>{
+        await navigator.clipboard.writeText(`${f.brand} ${f.name}`);
+        alert('Copied to clipboard');
+      });
+      const searchA = tpl.querySelector('[data-search]');
+      searchA.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`;
+      searchA.textContent = 'Find online';
+      wrap.appendChild(tpl);
+    }
+
+    $('#recMeta').textContent = `Based on: ${Object.entries(answers).map(([k,v])=>`${k}=${v}`).join(' • ')}`;
+    $('#recommendations').style.display = '';
+  }
+
+  // Quiz modal controls
+  $('#openQuizBtn').addEventListener('click', openQuiz);
+  $('#heroQuiz').addEventListener('click', openQuiz);
+  $('#launchQuiz').addEventListener('click', openQuiz);
+
+  $('#prevQ').addEventListener('click', ()=>{ if(qi>0){ qi--; updateProgress(); renderQ(); } });
+  $('#skipQ').addEventListener('click', ()=>{ qi = Math.min(qi+1, QUESTIONS.length-1); updateProgress(); renderQ(); });
+  $('#nextQ').addEventListener('click', ()=>{
+    if(qi < QUESTIONS.length - 1){ qi++; updateProgress(); renderQ(); }
+    else {
+      // finished
+      const dlg = $('#quizModal');
+      if(dlg.open) dlg.close();
+      LS.set(QUIZ_KEY, { when: Date.now(), answers });
+      showRecommendations();
+      location.hash = '#quiz';
+    }
+  });
+
+  // First-time prompt on open
+  window.addEventListener('load', ()=>{
+    renderHouses();
+    renderCatalog();
+    const prior = LS.get(QUIZ_KEY);
+    if(!prior){
+      // Wait a beat, then prompt
+      setTimeout(openQuiz, 600);
+    } else {
+      answers = prior.answers || {};
+      if(Object.keys(answers).length) showRecommendations();
+    }
+  });
+
+  // Share results link
+  $('#copyShare').addEventListener('click', async ()=>{
+    const url = new URL(location.href);
+    url.hash = '#quiz';
+    url.searchParams.set('answers', btoa(unescape(encodeURIComponent(JSON.stringify(answers)))));
+    await navigator.clipboard.writeText(url.toString());
+    alert('Sharable link copied!');
+  });
+
+  // Import answers from URL (if present)
+  (function(){
+    const p = new URLSearchParams(location.search).get('answers');
+    if(p){
+      try { answers = JSON.parse(decodeURIComponent(escape(atob(p)))); showRecommendations(); location.hash = '#quiz'; }
+      catch {}
+    }
+  })();
+
+  </script>
+</body>
+</html>
