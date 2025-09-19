@@ -7,17 +7,22 @@
   <meta name="description" content="Discover designer and niche fragrances with an interactive quiz, mobile-friendly design, and smooth snap scrolling." />
   <style>
     :root{
-      --bg:#0b0c10;--panel:#12141a;--muted:#9aa3af;--text:#e5e7eb;
-      --accent:#7c3aed;--accent-2:#10b981;--danger:#ef4444;
-      --ring:0 0 0 3px rgba(124,58,237,.35);--radius:18px;--shadow:0 10px 25px rgba(0,0,0,.35)
+      --bg:#07080d; --panel:#10121a; --muted:#a3adc2; --text:#e8ecf3;
+      --accent:#8b5cf6; /* violet */
+      --accent-2:#22d3ee; /* neon cyan */
+      --accent-3:#10b981; /* emerald */
+      --danger:#ef4444;
+      --ring:0 0 0 3px rgba(34,211,238,.35);
+      --radius:18px; --shadow:0 10px 25px rgba(0,0,0,.35)
     }
     *{box-sizing:border-box}
     html,body{height:100%;scroll-behavior:smooth}
     body{
       margin:0;
       background:
-        radial-gradient(1200px 700px at 80% -10%, rgba(124,58,237,.15), transparent),
-        radial-gradient(800px 500px at 20% 110%, rgba(16,185,129,.12), transparent),
+        radial-gradient(1200px 700px at 80% -10%, rgba(139,92,246,.22), transparent),
+        radial-gradient(900px 600px at 20% 110%, rgba(34,211,238,.20), transparent),
+        radial-gradient(1000px 800px at 10% 10%, rgba(16,185,129,.18), transparent),
         var(--bg);
       color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -26,16 +31,16 @@
 
     /* Top bar */
     .topbar{position:fixed;inset-inline:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;
-      backdrop-filter:blur(10px);background:color-mix(in hsl, var(--panel) 72%, transparent);border-bottom:1px solid rgba(255,255,255,.06);z-index:50}
+      backdrop-filter:blur(10px);background:color-mix(in hsl, var(--panel) 78%, transparent);border-bottom:1px solid rgba(255,255,255,.06);z-index:50}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}
     .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:var(--shadow);display:grid;place-items:center;font-weight:800}
     .nav{display:flex;gap:8px}
     .nav a{text-decoration:none;color:var(--text);opacity:.85;padding:8px 12px;border-radius:10px}
     .nav a:hover{background:rgba(255,255,255,.06);opacity:1}
     .cta{display:flex;gap:8px}
-    .btn{border:0;background:var(--accent);color:white;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;box-shadow:var(--shadow);transition:transform .06s ease}
+    .btn{border:0;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;box-shadow:var(--shadow);transition:transform .06s ease}
     .btn:hover{transform:translateY(-1px)}
-    .btn.secondary{background:#1f2937}
+    .btn.secondary{background:#1f2937; background:linear-gradient(135deg,#1f2937,#111827)}
     .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.12)}
     .menu-toggle{display:none}
     @media (max-width: 900px){.nav{display:none}.menu-toggle{display:inline-flex;gap:8px}}
@@ -56,7 +61,7 @@
     .hero p{color:var(--muted);max-width:60ch;margin-inline:auto}
     .hero .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 
-    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
 
     /* Quiz modal */
     dialog.modal{border:0;border-radius:18px;background:var(--panel);color:var(--text);width:min(100%,760px);padding:0;box-shadow:var(--shadow)}
@@ -67,8 +72,8 @@
     .q{display:grid;gap:12px}
     .options{display:grid;gap:10px;grid-template-columns:repeat(auto-fit, minmax(140px,1fr))}
     .opt{border:1px solid rgba(255,255,255,.12);padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);cursor:pointer;text-align:center;font-weight:600;transition:all .2s ease;color:var(--text)}
-    .opt:hover{background:rgba(124,58,237,.25);border-color:rgba(124,58,237,.6)}
-    .opt[data-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:#fff;box-shadow:0 0 8px rgba(124,58,237,.6)}
+    .opt:hover{background:rgba(139,92,246,.28);border-color:rgba(139,92,246,.6)}
+    .opt[data-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:#fff;box-shadow:0 0 8px rgba(139,92,246,.6)}
     .modal footer{display:flex;justify-content:space-between;padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)}
 
     /* Explore */
@@ -77,7 +82,7 @@
     .input:focus, select:focus{box-shadow:var(--ring);border-color:transparent}
     .houses{display:flex;gap:8px;overflow:auto;padding-bottom:8px}
     .chip{white-space:nowrap;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);padding:8px 12px;border-radius:12px;cursor:pointer}
-    .chip[data-active="true"]{background:rgba(124,58,237,.18);outline:var(--ring);border-color:transparent}
+    .chip[data-active="true"]{background:rgba(34,211,238,.22);outline:var(--ring);border-color:transparent}
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     .item{position:relative}
@@ -86,20 +91,11 @@
     .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
     .tag{font-size:.68rem;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);opacity:.9}
 
-    /* Thumbnail + overlays (decluttered) */
-    .thumb{
-      height:150px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
-      display:grid;place-items:center;background:rgba(255,255,255,.02);overflow:hidden;position:relative
-    }
+    /* Thumbnail + overlays */
+    .thumb{height:150px;border-radius:12px;border:1px solid rgba(255,255,255,.10);display:grid;place-items:center;background:rgba(255,255,255,.02);overflow:hidden;position:relative}
     .thumb img{width:100%;height:100%;object-fit:cover;display:block}
-    .badge{
-      position:absolute;top:8px;left:8px;padding:2px 8px;border-radius:8px;
-      background:rgba(0,0,0,.35);border:none;font-size:.72rem;font-weight:700;letter-spacing:.2px
-    }
-    .fav{
-      position:absolute;top:8px;right:8px;padding:4px 6px;border:none;background:transparent;
-      font-size:18px;line-height:1;cursor:pointer;opacity:.8;transition:opacity .15s ease, transform .06s ease
-    }
+    .badge{position:absolute;top:8px;left:8px;padding:2px 8px;border-radius:8px;background:rgba(0,0,0,.4);border:none;font-size:.72rem;font-weight:700;letter-spacing:.2px}
+    .fav{position:absolute;top:8px;right:8px;padding:4px 6px;border:none;background:transparent;font-size:18px;line-height:1;cursor:pointer;opacity:.85;transition:opacity .15s ease, transform .06s ease}
     .fav:hover{opacity:1;transform:translateY(-1px)}
     .fav[aria-pressed="true"]{color:#ffd166}
 
@@ -110,6 +106,18 @@
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     .basedon{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
     .basedon .chip{background:rgba(255,255,255,.06)}
+
+    /* Detail view (per-fragrance page) */
+    .detail{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; z-index:70}
+    .detail[data-open="true"]{display:grid; place-items:center}
+    .detail-card{width:min(900px,96vw); max-height:92vh; overflow:auto; border-radius:18px; background:var(--panel); border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow); padding:18px}
+    .detail-top{display:grid; gap:16px; grid-template-columns: 1fr 1.3fr}
+    .detail-top img{width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:14px; border:1px solid rgba(255,255,255,.1)}
+    .kv{display:flex; flex-wrap:wrap; gap:8px}
+    .kv .tag{font-size:.75rem}
+    @media (max-width: 820px){
+      .detail-top{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -168,7 +176,7 @@
       <header style="display:flex; justify-content:space-between; align-items:end; gap:12px; flex-wrap:wrap">
         <div>
           <h2 style="margin:0">Explore Fragrances</h2>
-          <p style="margin:6px 0 0; color:var(--muted)">Filter by house, style, occasion, and budget. Tap ☆ to save favorites.</p>
+          <p style="margin:6px 0 0; color:var(--muted)">Filter by house, style, occasion, and budget. Tap ☆ to save favorites. Tap a card for details.</p>
         </div>
         <div class="filters">
           <input id="search" class="input" placeholder="Search name, house, note…" />
@@ -262,9 +270,9 @@
     </form>
   </dialog>
 
-  <!-- Item template (decluttered) -->
+  <!-- Item template -->
   <template id="itemTpl">
-    <div class="card item">
+    <div class="card item" data-open-detail>
       <div class="thumb">
         <div class="badge" data-badge></div>
         <button class="fav" title="Save favorite" aria-pressed="false">☆</button>
@@ -281,15 +289,41 @@
     </div>
   </template>
 
+  <!-- Detail view -->
+  <div id="detail" class="detail" aria-modal="true" role="dialog">
+    <div class="detail-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px">
+        <strong id="dBrand" style="opacity:.9"></strong>
+        <button class="btn ghost" id="closeDetail">Close</button>
+      </div>
+      <div class="detail-top">
+        <img id="dImg" alt="">
+        <div>
+          <h2 id="dTitle" style="margin:0 0 8px 0"></h2>
+          <div class="kv" id="dKV"></div>
+          <p id="dDesc" style="color:var(--muted); margin:10px 0 0"></p>
+          <div style="display:flex; gap:8px; margin-top:14px">
+            <button class="btn ghost" id="dCopy">Copy name</button>
+            <a class="btn secondary" target="_blank" rel="noopener" id="dBuy">Find online</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <h3 style="margin:0 0 8px 0">Notes</h3>
+        <div id="dNotes" class="tags"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
   /* ---------- Helpers ---------- */
   function createFallback(title, brand){
     const svg = `
       <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
         <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-          <stop offset='0%' stop-color='#7c3aed'/><stop offset='100%' stop-color='#10b981'/></linearGradient></defs>
+          <stop offset='0%' stop-color='#8b5cf6'/><stop offset='50%' stop-color='#22d3ee'/><stop offset='100%' stop-color='#10b981'/></linearGradient></defs>
         <rect width='100%' height='100%' fill='#14161c'/>
-        <rect x='40' y='40' rx='24' width='520' height='320' fill='url(#g)' opacity='0.25'/>
+        <rect x='40' y='40' rx='24' width='520' height='320' fill='url(#g)' opacity='0.28'/>
         <text x='50%' y='46%' font-family='Arial, Helvetica, sans-serif' font-size='28' fill='#e5e7eb' text-anchor='middle'>${brand}</text>
         <text x='50%' y='60%' font-family='Arial, Helvetica, sans-serif' font-size='22' fill='#e5e7eb' text-anchor='middle'>${title}</text>
       </svg>`;
@@ -301,39 +335,56 @@
   const QUIZ_KEY = 'nuscent:quiz';
   const LS = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
   const fmtPrice = t => ({"under-60":"Under $60","60-120":"$60–$120","120-250":"$120–$250","250+":"$250+"}[t]||t);
+  const genderLabel = g => ({m:'Leans masculine', f:'Leans feminine', u:'Unisex'}[g] || 'Unisex');
 
-  /* ---------- Dataset (with images) ---------- */
+  /* ---------- Dataset (more scents, images when possible) ---------- */
   const FRAGS = [
-    { id:"sauvage-edt", name:"Sauvage EDT", brand:"Dior", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Dior_Sauvage_bottle.jpg/480px-Dior_Sauvage_bottle.jpg", styles:["fresh","citrus","spicy"], occasions:["casual","club","outdoors"], seasons:["spring","summer"], strength:"EDT", budget:"120-250", longevity:"8h", projection:"strong", notes:["bergamot","pepper","ambroxan"] },
-    { id:"bleu-edp", name:"Bleu de Chanel EDP", brand:"Chanel", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Bleu_de_Chanel_bottle.jpg/480px-Bleu_de_Chanel_bottle.jpg", styles:["fresh","woody","citrus"], occasions:["office","date","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8h", projection:"moderate", notes:["grapefruit","incense","cedar"] },
-    { id:"ysl-y-edp", name:"Y EDP", brand:"Yves Saint Laurent", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/YSL_Y_EDP_bottle.jpg/480px-YSL_Y_EDP_bottle.jpg", styles:["fresh","sweet","woody"], occasions:["office","club","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["apple","sage","tonka"] },
-    { id:"prada-carbon", name:"Luna Rossa Carbon", brand:"Prada", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Prada_Luna_Rossa_Carbon.jpg/480px-Prada_Luna_Rossa_Carbon.jpg", styles:["fresh","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["lavender","ambroxan","pepper"] },
-    { id:"versace-dylan", name:"Dylan Blue", brand:"Versace", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Versace_Dylan_Blue.jpg/480px-Versace_Dylan_Blue.jpg", styles:["fresh","spicy","woody"], occasions:["club","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["calabrian bergamot","incense"] },
-    { id:"acqua-gio-profondo", name:"Acqua di Giò Profondo", brand:"Giorgio Armani", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acqua_di_Gi%C3%B2_Profondo.jpg/480px-Acqua_di_Gi%C3%B2_Profondo.jpg", styles:["aquatic","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","rosemary"] },
-    { id:"armani-code-parfum", name:"Armani Code Parfum", brand:"Giorgio Armani", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Armani_Code_Parfum_bottle.jpg/480px-Armani_Code_Parfum_bottle.jpg", styles:["sweet","amber","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"Parfum", budget:"120-250", longevity:"8-10h", projection:"moderate", notes:["iris","tonka","cedar"] },
-    { id:"prada-lhomme", name:"L'Homme", brand:"Prada", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Prada_LHomme.jpg/480px-Prada_LHomme.jpg", styles:["fresh","powdery","clean"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["iris","neroli","violet"] },
-    { id:"montblanc-explorer", name:"Explorer", brand:"Montblanc", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Montblanc_Explorer.jpg/480px-Montblanc_Explorer.jpg", styles:["fresh","woody"], occasions:["casual","outdoors"], seasons:["spring","summer","fall"], strength:"EDP", budget:"60-120", longevity:"6-8h", projection:"moderate", notes:["bergamot","vetiver","patchouli"] },
-    { id:"versace-pour-homme", name:"Versace Pour Homme", brand:"Versace", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Versace_Pour_Homme.jpg/480px-Versace_Pour_Homme.jpg", styles:["citrus","fresh","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"5-7h", projection:"moderate", notes:["lemon","neroli","tonka"] },
-    { id:"nautica-voyage", name:"Nautica Voyage", brand:"Nautica", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Nautica_Voyage_bottle.jpg/480px-Nautica_Voyage_bottle.jpg", styles:["aquatic","fresh"], occasions:["gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"under-60", longevity:"5-7h", projection:"moderate", notes:["green apple","lotus","musk"] },
+    // Designer core
+    { id:"sauvage-edt", name:"Sauvage EDT", brand:"Dior", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Dior_Sauvage_bottle.jpg/480px-Dior_Sauvage_bottle.jpg", styles:["fresh","citrus","spicy"], occasions:["casual","club","outdoors"], seasons:["spring","summer"], strength:"EDT", budget:"120-250", longevity:"8h", projection:"strong", notes:["bergamot","pepper","ambroxan"] },
+    { id:"sauvage-elixir", name:"Sauvage Elixir", brand:"Dior", type:"designer", gender:"m", image:"", styles:["spicy","woody","aromatic"], occasions:["evening","date"], seasons:["fall","winter"], strength:"Parfum", budget:"250+", longevity:"10-12h", projection:"strong", notes:["cinnamon","nutmeg","licorice","lavender","sandalwood"] },
+    { id:"bleu-edp", name:"Bleu de Chanel EDP", brand:"Chanel", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Bleu_de_Chanel_bottle.jpg/480px-Bleu_de_Chanel_bottle.jpg", styles:["fresh","woody","citrus"], occasions:["office","date","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8h", projection:"moderate", notes:["grapefruit","incense","cedar"] },
+    { id:"bleu-parfum", name:"Bleu de Chanel Parfum", brand:"Chanel", type:"designer", gender:"m", image:"", styles:["woody","aromatic","citrus"], occasions:["formal","office"], seasons:["all"], strength:"Parfum", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["lemon","sandalwood","cedar"] },
+    { id:"allure-sport", name:"Allure Homme Sport", brand:"Chanel", type:"designer", gender:"m", image:"", styles:["fresh","citrus","aquatic"], occasions:["gym","casual","office"], seasons:["spring","summer"], strength:"EDT", budget:"120-250", longevity:"6-8h", projection:"moderate", notes:["orange","aldehydes","tonka"] },
+    { id:"ysl-y-edp", name:"Y EDP", brand:"Yves Saint Laurent", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/YSL_Y_EDP_bottle.jpg/480px-YSL_Y_EDP_bottle.jpg", styles:["fresh","sweet","woody"], occasions:["office","club","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["apple","sage","tonka"] },
+    { id:"ysl-ldp", name:"Tuxedo (Le Vestiaire)", brand:"Yves Saint Laurent", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/YSL_Tuxedo_Le_Vestiaire.jpg/480px-YSL_Tuxedo_Le_Vestiaire.jpg", styles:["spicy","amber","sweet"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["patchouli","vanilla","spices"] },
+    { id:"prada-carbon", name:"Luna Rossa Carbon", brand:"Prada", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Prada_Luna_Rossa_Carbon.jpg/480px-Prada_Luna_Rossa_Carbon.jpg", styles:["fresh","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["lavender","ambroxan","pepper"] },
+    { id:"prada-lhomme", name:"L'Homme", brand:"Prada", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Prada_LHomme.jpg/480px-Prada_LHomme.jpg", styles:["fresh","powdery","clean"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["iris","neroli","violet"] },
+    { id:"prada-ocean", name:"Luna Rossa Ocean EDP", brand:"Prada", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Prada_Luna_Rossa_Ocean_EDP.jpg/480px-Prada_Luna_Rossa_Ocean_EDP.jpg", styles:["fresh","aquatic","sweet"], occasions:["office","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","iris","vanilla"] },
+    { id:"armani-profondo", name:"Acqua di Giò Profondo", brand:"Giorgio Armani", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acqua_di_Gi%C3%B2_Profondo.jpg/480px-Acqua_di_Gi%C3%B2_Profondo.jpg", styles:["aquatic","citrus","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","rosemary"] },
+    { id:"armani-code-parfum", name:"Armani Code Parfum", brand:"Giorgio Armani", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Armani_Code_Parfum_bottle.jpg/480px-Armani_Code_Parfum_bottle.jpg", styles:["sweet","amber","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"Parfum", budget:"120-250", longevity:"8-10h", projection:"moderate", notes:["iris","tonka","cedar"] },
+    { id:"versace-dylan", name:"Dylan Blue", brand:"Versace", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Versace_Dylan_Blue.jpg/480px-Versace_Dylan_Blue.jpg", styles:["fresh","spicy","woody"], occasions:["club","casual"], seasons:["spring","summer","fall"], strength:"EDT", budget:"60-120", longevity:"7h", projection:"moderate", notes:["calabrian bergamot","incense"] },
+    { id:"versace-eros-edp", name:"Eros EDP", brand:"Versace", type:"designer", gender:"m", image:"", styles:["sweet","fresh","woody"], occasions:["club","date"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["mint","vanilla","cedar"] },
+    { id:"montblanc-explorer", name:"Explorer", brand:"Montblanc", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Montblanc_Explorer.jpg/480px-Montblanc_Explorer.jpg", styles:["fresh","woody"], occasions:["casual","outdoors"], seasons:["spring","summer","fall"], strength:"EDP", budget:"60-120", longevity:"6-8h", projection:"moderate", notes:["bergamot","vetiver","patchouli"] },
+    { id:"versace-pour-homme", name:"Versace Pour Homme", brand:"Versace", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Versace_Pour_Homme.jpg/480px-Versace_Pour_Homme.jpg", styles:["citrus","fresh","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"5-7h", projection:"moderate", notes:["lemon","neroli","tonka"] },
+    { id:"nautica-voyage", name:"Nautica Voyage", brand:"Nautica", type:"designer", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Nautica_Voyage_bottle.jpg/480px-Nautica_Voyage_bottle.jpg", styles:["aquatic","fresh"], occasions:["gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"under-60", longevity:"5-7h", projection:"moderate", notes:["green apple","lotus","musk"] },
+    { id:"terre-dhermes", name:"Terre d’Hermès EDT", brand:"Hermès", type:"designer", gender:"m", image:"", styles:["woody","citrus","earthy"], occasions:["office","formal"], seasons:["spring","fall"], strength:"EDT", budget:"120-250", longevity:"8h", projection:"moderate", notes:["orange","vetiver","cedar"] },
+    { id:"the-one-edp", name:"The One EDP", brand:"Dolce & Gabbana", type:"designer", gender:"m", image:"", styles:["sweet","spicy","amber"], occasions:["date","evening"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"6-8h", projection:"moderate", notes:["grapefruit","cardamom","tobacco","amber"] },
+    { id:"le-male-le-parfum", name:"Le Male Le Parfum", brand:"Jean Paul Gaultier", type:"designer", gender:"m", image:"", styles:["sweet","vanilla","spicy"], occasions:["club","date"], seasons:["fall","winter"], strength:"Parfum", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["cardamom","lavender","vanilla"] },
+    { id:"gentleman-edp", name:"Gentleman EDP", brand:"Givenchy", type:"designer", gender:"m", image:"", styles:["sweet","powdery","woody"], occasions:["date","formal"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"moderate", notes:["iris","vanilla","patchouli"] },
+    { id:"wanted-by-night", name:"Wanted by Night", brand:"Azzaro", type:"designer", gender:"m", image:"", styles:["spicy","sweet","woody"], occasions:["evening","club"], seasons:["fall","winter"], strength:"EDP", budget:"60-120", longevity:"8-10h", projection:"strong", notes:["cinnamon","tobacco","cedar"] },
 
-    /* Niche */
-    { id:"pdm-layton", name:"Layton", brand:"Parfums de Marly", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Parfums_de_Marly_Layton.jpg/480px-Parfums_de_Marly_Layton.jpg", styles:["sweet","spicy","amber"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["apple","vanilla","cardamom"] },
-    { id:"pdm-herod", name:"Herod", brand:"Parfums de Marly", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Parfums_de_Marly_Herod.jpg/480px-Parfums_de_Marly_Herod.jpg", styles:["sweet","spicy","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["tobacco","vanilla","cinnamon"] },
-    { id:"initio-side-effect", name:"Side Effect", brand:"Initio", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Initio_Side_Effect.jpg/480px-Initio_Side_Effect.jpg", styles:["sweet","boozy","spicy"], occasions:["date","evening","club"], seasons:["fall","winter"], strength:"Extrait", budget:"250+", longevity:"12h", projection:"strong", notes:["rum","vanilla","cinnamon"] },
-    { id:"tf-oud-wood", name:"Oud Wood", brand:"Tom Ford", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Tom_Ford_Oud_Wood.jpg/480px-Tom_Ford_Oud_Wood.jpg", styles:["woody","smoky","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["oud","cardamom","sandalwood"] },
-    { id:"tf-tobacco-vanille", name:"Tobacco Vanille", brand:"Tom Ford", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Tom_Ford_Tobacco_Vanille.jpg/480px-Tom_Ford_Tobacco_Vanille.jpg", styles:["sweet","spicy","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["tobacco","vanilla","cacao"] },
-    { id:"creed-aventus", name:"Aventus", brand:"Creed", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Creed_Aventus_bottle.jpg/480px-Creed_Aventus_bottle.jpg", styles:["fresh","fruity","woody"], occasions:["date","office","formal"], seasons:["spring","summer","fall"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["pineapple","birch","musk"] },
-    { id:"creed-git", name:"Green Irish Tweed", brand:"Creed", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Green_Irish_Tweed.jpg/480px-Green_Irish_Tweed.jpg", styles:["green","fresh"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8h", projection:"moderate", notes:["lemon verbena","violet leaf","ambergris"] },
-    { id:"mfc-br540", name:"Baccarat Rouge 540", brand:"Maison Francis Kurkdjian", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Baccarat_Rouge_540.jpg/480px-Baccarat_Rouge_540.jpg", styles:["sweet","amber","airy"], occasions:["date","evening","club"], seasons:["all"], strength:"EDP", budget:"250+", longevity:"12h", projection:"strong", notes:["saffron","amberwood","cedar"] },
-    { id:"mfc-gfs", name:"Gentle Fluidity Silver", brand:"Maison Francis Kurkdjian", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Gentle_Fluidity_Silver.jpg/480px-Gentle_Fluidity_Silver.jpg", styles:["fresh","musky","aromatic"], occasions:["office","casual","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["juniper","musk","amber"] },
-    { id:"nishane-hacivat", name:"Hacivat", brand:"Nishane", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Nishane_Hacivat.jpg/480px-Nishane_Hacivat.jpg", styles:["fresh","fruity","woody"], occasions:["formal","date"], seasons:["spring","summer","fall"], strength:"Extrait", budget:"250+", longevity:"10-12h", projection:"strong", notes:["pineapple","grapefruit","oakmoss"] },
-    { id:"xerjoff-naxos", name:"Naxos", brand:"Xerjoff", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Xerjoff_Naxos.jpg/480px-Xerjoff_Naxos.jpg", styles:["sweet","spicy","amber"], occasions:["evening","date"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["honey","tobacco","vanilla"] },
-    { id:"amouage-reflection-man", name:"Reflection Man", brand:"Amouage", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Amouage_Reflection_Man.jpg/480px-Amouage_Reflection_Man.jpg", styles:["fresh","floral","woody"], occasions:["formal","office","wedding"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"strong", notes:["neroli","jasmine","sandalwood"] },
-    { id:"byredo-gypsy", name:"Gypsy Water", brand:"Byredo", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Byredo_Gypsy_Water.jpg/480px-Byredo_Gypsy_Water.jpg", styles:["fresh","woody","aromatic"], occasions:["casual","office"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"6-8h", projection:"soft", notes:["bergamot","juniper","vanilla"] },
-
-    { id:"dior-homme-intense", name:"Dior Homme Intense", brand:"Dior", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Dior_Homme_Intense_bottle.jpg/480px-Dior_Homme_Intense_bottle.jpg", styles:["sweet","powdery","woody"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"10h", projection:"moderate", notes:["iris","cacao","cedar"] },
-    { id:"ysl-tuxedo", name:"Tuxedo", brand:"Yves Saint Laurent (Le Vestiaire)", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/YSL_Tuxedo_Le_Vestiaire.jpg/480px-YSL_Tuxedo_Le_Vestiaire.jpg", styles:["spicy","amber","sweet"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["patchouli","vanilla","spices"] },
-    { id:"prada-ldros", name:"Luna Rossa Ocean EDP", brand:"Prada", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Prada_Luna_Rossa_Ocean_EDP.jpg/480px-Prada_Luna_Rossa_Ocean_EDP.jpg", styles:["fresh","aquatic","sweet"], occasions:["office","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","iris","vanilla"] },
+    // Niche
+    { id:"pdm-layton", name:"Layton", brand:"Parfums de Marly", type:"niche", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Parfums_de_Marly_Layton.jpg/480px-Parfums_de_Marly_Layton.jpg", styles:["sweet","spicy","amber"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["apple","vanilla","cardamom"] },
+    { id:"pdm-herod", name:"Herod", brand:"Parfums de Marly", type:"niche", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Parfums_de_Marly_Herod.jpg/480px-Parfums_de_Marly_Herod.jpg", styles:["sweet","spicy","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["tobacco","vanilla","cinnamon"] },
+    { id:"pdm-percival", name:"Percival", brand:"Parfums de Marly", type:"niche", gender:"m", image:"", styles:["fresh","citrus","woody"], occasions:["office","casual"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8h", projection:"moderate", notes:["bergamot","mandarin","lavender","amberwood"] },
+    { id:"initio-side-effect", name:"Side Effect", brand:"Initio", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Initio_Side_Effect.jpg/480px-Initio_Side_Effect.jpg", styles:["sweet","boozy","spicy"], occasions:["date","evening","club"], seasons:["fall","winter"], strength:"Extrait", budget:"250+", longevity:"12h", projection:"strong", notes:["rum","vanilla","cinnamon"] },
+    { id:"initio-rehab", name:"Rehab", brand:"Initio", type:"niche", gender:"u", image:"", styles:["fresh","aromatic","woody"], occasions:["office","casual"], seasons:["all"], strength:"Extrait", budget:"250+", longevity:"10h", projection:"moderate", notes:["lavender","bergamot","sandalwood","musk"] },
+    { id:"tf-oud-wood", name:"Oud Wood", brand:"Tom Ford", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Tom_Ford_Oud_Wood.jpg/480px-Tom_Ford_Oud_Wood.jpg", styles:["woody","smoky","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["oud","cardamom","sandalwood"] },
+    { id:"tf-tobacco-vanille", name:"Tobacco Vanille", brand:"Tom Ford", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Tom_Ford_Tobacco_Vanille.jpg/480px-Tom_Ford_Tobacco_Vanille.jpg", styles:["sweet","spicy","amber"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["tobacco","vanilla","cacao"] },
+    { id:"creed-aventus", name:"Aventus", brand:"Creed", type:"niche", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Creed_Aventus_bottle.jpg/480px-Creed_Aventus_bottle.jpg", styles:["fresh","fruity","woody"], occasions:["date","office","formal"], seasons:["spring","summer","fall"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["pineapple","birch","musk"] },
+    { id:"creed-git", name:"Green Irish Tweed", brand:"Creed", type:"niche", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Green_Irish_Tweed.jpg/480px-Green_Irish_Tweed.jpg", styles:["green","fresh"], occasions:["office","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8h", projection:"moderate", notes:["lemon verbena","violet leaf","ambergris"] },
+    { id:"mfc-br540", name:"Baccarat Rouge 540", brand:"Maison Francis Kurkdjian", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Baccarat_Rouge_540.jpg/480px-Baccarat_Rouge_540.jpg", styles:["sweet","amber","airy"], occasions:["date","evening","club"], seasons:["all"], strength:"EDP", budget:"250+", longevity:"12h", projection:"strong", notes:["saffron","amberwood","cedar"] },
+    { id:"mfc-gfs", name:"Gentle Fluidity Silver", brand:"Maison Francis Kurkdjian", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Gentle_Fluidity_Silver.jpg/480px-Gentle_Fluidity_Silver.jpg", styles:["fresh","musky","aromatic"], occasions:["office","casual","formal"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["juniper","musk","amber"] },
+    { id:"nishane-hacivat", name:"Hacivat", brand:"Nishane", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Nishane_Hacivat.jpg/480px-Nishane_Hacivat.jpg", styles:["fresh","fruity","woody"], occasions:["formal","date"], seasons:["spring","summer","fall"], strength:"Extrait", budget:"250+", longevity:"10-12h", projection:"strong", notes:["pineapple","grapefruit","oakmoss"] },
+    { id:"nishane-ani", name:"Ani", brand:"Nishane", type:"niche", gender:"u", image:"", styles:["sweet","vanilla","spicy"], occasions:["date","evening"], seasons:["fall","winter"], strength:"Extrait", budget:"250+", longevity:"10-12h", projection:"strong", notes:["vanilla","ginger","cardamom","benzoin"] },
+    { id:"xerjoff-naxos", name:"Naxos", brand:"Xerjoff", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Xerjoff_Naxos.jpg/480px-Xerjoff_Naxos.jpg", styles:["sweet","spicy","amber"], occasions:["evening","date"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["honey","tobacco","vanilla"] },
+    { id:"xerjoff-uden", name:"Uden", brand:"Xerjoff", type:"niche", gender:"m", image:"", styles:["fresh","citrus","woody"], occasions:["date","office"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"moderate", notes:["lemon","grapefruit","sandalwood"] },
+    { id:"amouage-reflection-man", name:"Reflection Man", brand:"Amouage", type:"niche", gender:"m", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Amouage_Reflection_Man.jpg/480px-Amouage_Reflection_Man.jpg", styles:["fresh","floral","woody"], occasions:["formal","office","wedding"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"strong", notes:["neroli","jasmine","sandalwood"] },
+    { id:"amouage-interlude", name:"Interlude Man", brand:"Amouage", type:"niche", gender:"m", image:"", styles:["smoky","amber","spicy"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"12h", projection:"beast", notes:["oregano","incense","amber","agarwood"] },
+    { id:"byredo-gypsy", name:"Gypsy Water", brand:"Byredo", type:"niche", gender:"u", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Byredo_Gypsy_Water.jpg/480px-Byredo_Gypsy_Water.jpg", styles:["fresh","woody","aromatic"], occasions:["casual","office"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"6-8h", projection:"soft", notes:["bergamot","juniper","vanilla"] },
+    { id:"le-labo-santal-33", name:"Santal 33", brand:"Le Labo", type:"niche", gender:"u", image:"", styles:["woody","leathery","smoky"], occasions:["casual","office"], seasons:["fall","spring"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"strong", notes:["sandalwood","leather","cedar","violet"] },
+    { id:"kilian-angels-share", name:"Angels’ Share", brand:"Kilian", type:"niche", gender:"u", image:"", styles:["boozy","sweet","amber"], occasions:["evening","date"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["cognac","cinnamon","vanilla","tonka"] },
+    { id:"mm-jazz-club", name:"Jazz Club", brand:"Maison Margiela", type:"niche", gender:"u", image:"", styles:["boozy","tobacco","sweet"], occasions:["evening","casual"], seasons:["fall","winter"], strength:"EDT", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["rum","tobacco","vanilla"] },
   ];
   const HOUSES = Array.from(new Set(FRAGS.map(f => f.brand))).sort();
 
@@ -351,7 +402,7 @@
   }
 
   function renderCardData(tpl, f, favs){
-    tpl.querySelector('[data-badge]').textContent = f.brand; // minimal label
+    tpl.querySelector('[data-badge]').textContent = f.brand;
     tpl.querySelector('[data-title]').textContent = f.name;
     tpl.querySelector('[data-sub]').textContent = `${f.styles.join(' · ')} • ${fmtPrice(f.budget)}`;
 
@@ -363,8 +414,7 @@
     const tags = tpl.querySelector('[data-tags]');
     const allTags = [f.seasons.join('/'), ...(f.occasions || [])].filter(Boolean);
     allTags.slice(0,2).forEach(t=>{
-      const span = Object.assign(document.createElement('span'), { className:'tag', textContent:t });
-      tags.appendChild(span);
+      tags.appendChild(Object.assign(document.createElement('span'), { className:'tag', textContent:t }));
     });
     if (allTags.length > 2) {
       const more = Object.assign(document.createElement('span'), { className:'tag', textContent: `+${allTags.length - 2} more` });
@@ -374,18 +424,24 @@
 
     const favBtn = tpl.querySelector('.fav');
     favBtn.setAttribute('aria-pressed', favs.has(f.id) ? 'true' : 'false');
-    favBtn.addEventListener('click', ()=>{
+    favBtn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
       const set = new Set(LS.get(FAVORITES_KEY, []));
       if(set.has(f.id)) set.delete(f.id); else set.add(f.id);
       LS.set(FAVORITES_KEY, [...set]);
       favBtn.setAttribute('aria-pressed', set.has(f.id) ? 'true' : 'false');
     });
 
-    tpl.querySelector('[data-copy]').addEventListener('click', async ()=>{
+    tpl.querySelector('[data-copy]').addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
       await navigator.clipboard.writeText(`${f.brand} ${f.name}`); alert('Copied to clipboard');
     });
     const a = tpl.querySelector('[data-search]');
     a.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`;
+    a.addEventListener('click', ev=>ev.stopPropagation());
+
+    // open detail on card click
+    tpl.firstElementChild.addEventListener('click', ()=>openDetail(f.id));
   }
 
   function renderCatalog(list=FRAGS){
@@ -485,13 +541,13 @@
     const ranked = FRAGS.map(f=>({f,s:scoreFragrance(f,answers)})).sort((a,b)=>b.s-a.s);
     const picks = []; const wantType = answers.type==='both' || !answers.type ? null : answers.type;
     if(!wantType){
-      const top = ranked.slice(0,12);
-      const niche = top.filter(x=>x.f.type==='niche').slice(0,3);
-      const designer = top.filter(x=>x.f.type==='designer').slice(0,3);
+      const top = ranked.slice(0,14);
+      const niche = top.filter(x=>x.f.type==='niche').slice(0,4);
+      const designer = top.filter(x=>x.f.type==='designer').slice(0,4);
       const rest = top.filter(x=>!niche.includes(x) && !designer.includes(x)).slice(0,4);
       picks.push(...niche, ...designer, ...rest);
     } else { picks.push(...ranked.slice(0,10)); }
-    return picks.map(x=>x.f).slice(0,10);
+    return picks.map(x=>x.f).slice(0,12);
   }
 
   function toChips(a){
@@ -520,7 +576,6 @@
     });
   }
 
-  // central place to reveal results & navigate
   function revealResults(){
     const list = computeResults();
     const wrap = $('#recGrid'); wrap.innerHTML='';
@@ -532,23 +587,15 @@
     }
     renderBasedOn();
     $('#recommendations').style.display='';
-    // navigate to quiz section reliably (works from Hero & top-right button too)
-    const target = document.getElementById('quiz');
-    if(target && target.scrollIntoView){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
-    // also set hash, so refresh keeps you here
+    document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'start'});
     const url = new URL(location.href); url.hash = '#quiz'; history.replaceState(null,'',url);
   }
 
-  // expose for reuse
-  function showRecommendations(){ revealResults(); }
-
-  // Quiz controls
   const openers = ['#openQuizBtn','#heroQuiz','#launchQuiz'];
   openers.forEach(sel=>{
     const el = document.querySelector(sel);
     if(el) el.addEventListener('click', openQuiz);
   });
-
   $('#prevQ').addEventListener('click', ()=>{ if(qi>0){ qi--; updateProgress(); renderQ(); } });
   $('#skipQ').addEventListener('click', ()=>{ qi=Math.min(qi+1, QUESTIONS.length-1); updateProgress(); renderQ(); });
   $('#nextQ').addEventListener('click', ()=>{
@@ -556,36 +603,80 @@
     else{
       const d=$('#quizModal'); if(d.open) d.close();
       LS.set(QUIZ_KEY,{when:Date.now(),answers});
-      revealResults(); // <-- always reveal here
+      revealResults();
     }
   });
 
-  /* ---------- Boot ---------- */
+  /* ---------- Detail page (client-side) ---------- */
+  function findFrag(id){ return FRAGS.find(f=>f.id===id); }
+
+  function openDetail(id){
+    const f = findFrag(id); if(!f) return;
+    $('#dBrand').textContent = `${f.brand} • ${f.type==='niche'?'Niche':'Designer'}`;
+    $('#dTitle').textContent = f.name;
+    const img = $('#dImg'); img.src = f.image || createFallback(f.name,f.brand); img.alt = `${f.brand} ${f.name} bottle`;
+    const kv = $('#dKV'); kv.innerHTML='';
+    const kvs = [
+      ['Style', f.styles.join(' / ')],
+      ['Budget', fmtPrice(f.budget)],
+      ['Strength', f.strength],
+      ['Longevity', f.longevity],
+      ['Sillage', f.projection],
+      ['Gender', genderLabel(f.gender||'u')],
+      ['Seasons', f.seasons.join(' / ')]
+    ];
+    kvs.forEach(([k,v])=>{
+      const el = Object.assign(document.createElement('span'), {className:'tag', textContent:`${k}: ${v}`});
+      kv.appendChild(el);
+    });
+    const notes = $('#dNotes'); notes.innerHTML='';
+    (f.notes||[]).forEach(n=>notes.appendChild(Object.assign(document.createElement('span'),{className:'tag',textContent:n})));
+
+    $('#dCopy').onclick = async ()=>{ await navigator.clipboard.writeText(`${f.brand} ${f.name}`); alert('Copied to clipboard'); };
+    const buy = $('#dBuy'); buy.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`;
+
+    $('#detail').dataset.open='true';
+    const url = new URL(location.href); url.hash = `#frag/${f.id}`; history.pushState({frag:f.id}, '', url);
+  }
+  function closeDetail(){
+    $('#detail').dataset.open='false';
+    // go back to previous hash without leaving page
+    if(location.hash.startsWith('#frag/')) history.back();
+  }
+  $('#closeDetail').addEventListener('click', closeDetail);
+  $('#detail').addEventListener('click', (e)=>{ if(e.target.id==='detail') closeDetail(); });
+  window.addEventListener('popstate', ()=>{
+    if(location.hash.startsWith('#frag/')) {
+      const id = location.hash.split('/')[1]; if(id) openDetail(id);
+    } else { $('#detail').dataset.open='false'; }
+  });
+  // deep-link support
+  window.addEventListener('load', ()=>{
+    if(location.hash.startsWith('#frag/')) {
+      const id = location.hash.split('/')[1]; if(id) setTimeout(()=>openDetail(id), 50);
+    }
+  });
+
+  /* ---------- Boot (stay on Home; no auto-open quiz) ---------- */
   function boot(){
     renderHouses(); renderCatalog();
-    const prior = LS.get(QUIZ_KEY);
-    if(!prior){ setTimeout(openQuiz, 600); }
-    else {
-      answers = prior.answers || {};
-      if(Object.keys(answers).length) revealResults();
-    }
+    // keep results hidden on load; user will open quiz themselves
   }
   window.addEventListener('load', boot);
 
-  // Share link
+  // Share link for results
   $('#copyShare').addEventListener('click', async ()=>{
     const url=new URL(location.href); url.hash='#quiz';
     url.searchParams.set('answers', btoa(unescape(encodeURIComponent(JSON.stringify(answers)))));
     await navigator.clipboard.writeText(url.toString()); alert('Sharable link copied!');
   });
-
-  // Import answers from URL
+  // Import answers (do NOT auto-scroll away from Home)
   (function(){
     const p = new URLSearchParams(location.search).get('answers');
-    if(p){ try{ answers = JSON.parse(decodeURIComponent(escape(atob(p)))); revealResults(); } catch{} }
+    if(p){ try{ answers = JSON.parse(decodeURIComponent(escape(atob(p)))); /* keep for when they open quiz */ } catch{} }
   })();
 
-  // Mobile sheet close helpers
+  // Mobile sheet toggles
   $('#openMenu').addEventListener('click', ()=> $('#sheet').dataset.open='true');
   $('#closeMenu').addEventListener('click', ()=> $('#sheet').dataset.open='false');
   $('#sheet').addEventListener('click', e=>{ if(e.target.matches('[data-close], .sheet')) $('#sheet').dataset.open='false' });
