@@ -81,15 +81,27 @@
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     .item{position:relative}
-    .badge{position:absolute;top:10px;left:10px;padding:6px 10px;border-radius:999px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.25);font-size:.75rem;font-weight:800;letter-spacing:.3px}
-    .fav{position:absolute;top:10px;right:10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px;cursor:pointer}
-    .fav[aria-pressed="true"]{background:rgba(124,58,237,.25)}
     .item h3{margin:10px 0 6px;font-size:1.05rem}
     .item p{margin:0;color:var(--muted)}
     .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-    .tag{font-size:.72rem;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
-    .thumb{height:150px;border-radius:12px;border:1px solid rgba(255,255,255,.10);display:grid;place-items:center;background:rgba(255,255,255,.02);overflow:hidden}
+    .tag{font-size:.68rem;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);opacity:.9}
+
+    /* Thumbnail + overlays (decluttered) */
+    .thumb{
+      height:150px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+      display:grid;place-items:center;background:rgba(255,255,255,.02);overflow:hidden;position:relative
+    }
     .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .badge{
+      position:absolute;top:8px;left:8px;padding:2px 8px;border-radius:8px;
+      background:rgba(0,0,0,.35);border:none;font-size:.72rem;font-weight:700;letter-spacing:.2px
+    }
+    .fav{
+      position:absolute;top:8px;right:8px;padding:4px 6px;border:none;background:transparent;
+      font-size:18px;line-height:1;cursor:pointer;opacity:.8;transition:opacity .15s ease, transform .06s ease
+    }
+    .fav:hover{opacity:1;transform:translateY(-1px)}
+    .fav[aria-pressed="true"]{color:#ffd166}
 
     .reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
     .review{display:grid;gap:10px}
@@ -250,19 +262,19 @@
     </form>
   </dialog>
 
-  <!-- Item template -->
+  <!-- Item template (decluttered) -->
   <template id="itemTpl">
     <div class="card item">
-      <div class="badge" data-badge></div>
-      <button class="fav" title="Save favorite" aria-pressed="false">☆</button>
       <div class="thumb">
+        <div class="badge" data-badge></div>
+        <button class="fav" title="Save favorite" aria-pressed="false">☆</button>
         <img alt="" referrerpolicy="no-referrer" data-img
              onerror="this.onerror=null;this.src=createFallback(this.dataset.title,this.dataset.brand);this.style.objectFit='contain'">
       </div>
       <h3 data-title></h3>
       <p data-sub></p>
       <div class="tags" data-tags></div>
-      <div style="display:flex;gap:8px;margin-top:12px">
+      <div style="display:flex; gap:8px; margin-top:12px">
         <button class="btn ghost" data-copy>Copy name</button>
         <a class="btn secondary" target="_blank" rel="noopener" data-search>Find online</a>
       </div>
@@ -270,17 +282,12 @@
   </template>
 
   <script>
-  // Utility: SVG fallback generator (pretty placeholder with brand/name)
+  /* ---------- Helpers ---------- */
   function createFallback(title, brand){
-    const t = encodeURIComponent((brand + ' ' + title).slice(0,28));
     const svg = `
       <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
-        <defs>
-          <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-            <stop offset='0%' stop-color='#7c3aed'/>
-            <stop offset='100%' stop-color='#10b981'/>
-          </linearGradient>
-        </defs>
+        <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+          <stop offset='0%' stop-color='#7c3aed'/><stop offset='100%' stop-color='#10b981'/></linearGradient></defs>
         <rect width='100%' height='100%' fill='#14161c'/>
         <rect x='40' y='40' rx='24' width='520' height='320' fill='url(#g)' opacity='0.25'/>
         <text x='50%' y='46%' font-family='Arial, Helvetica, sans-serif' font-size='28' fill='#e5e7eb' text-anchor='middle'>${brand}</text>
@@ -288,10 +295,15 @@
       </svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const FAVORITES_KEY = 'nuscent:favorites';
+  const QUIZ_KEY = 'nuscent:quiz';
+  const LS = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
+  const fmtPrice = t => ({"under-60":"Under $60","60-120":"$60–$120","120-250":"$120–$250","250+":"$250+"}[t]||t);
 
-  // Dataset with image URLs (fallbacks will handle any blocked hotlinks)
+  /* ---------- Dataset (with images) ---------- */
   const FRAGS = [
-    // Designer
     { id:"sauvage-edt", name:"Sauvage EDT", brand:"Dior", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Dior_Sauvage_bottle.jpg/480px-Dior_Sauvage_bottle.jpg", styles:["fresh","citrus","spicy"], occasions:["casual","club","outdoors"], seasons:["spring","summer"], strength:"EDT", budget:"120-250", longevity:"8h", projection:"strong", notes:["bergamot","pepper","ambroxan"] },
     { id:"bleu-edp", name:"Bleu de Chanel EDP", brand:"Chanel", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Bleu_de_Chanel_bottle.jpg/480px-Bleu_de_Chanel_bottle.jpg", styles:["fresh","woody","citrus"], occasions:["office","date","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8h", projection:"moderate", notes:["grapefruit","incense","cedar"] },
     { id:"ysl-y-edp", name:"Y EDP", brand:"Yves Saint Laurent", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/YSL_Y_EDP_bottle.jpg/480px-YSL_Y_EDP_bottle.jpg", styles:["fresh","sweet","woody"], occasions:["office","club","casual"], seasons:["all"], strength:"EDP", budget:"120-250", longevity:"8-10h", projection:"strong", notes:["apple","sage","tonka"] },
@@ -304,7 +316,7 @@
     { id:"versace-pour-homme", name:"Versace Pour Homme", brand:"Versace", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Versace_Pour_Homme.jpg/480px-Versace_Pour_Homme.jpg", styles:["citrus","fresh","aromatic"], occasions:["office","gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"60-120", longevity:"5-7h", projection:"moderate", notes:["lemon","neroli","tonka"] },
     { id:"nautica-voyage", name:"Nautica Voyage", brand:"Nautica", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Nautica_Voyage_bottle.jpg/480px-Nautica_Voyage_bottle.jpg", styles:["aquatic","fresh"], occasions:["gym","casual"], seasons:["spring","summer"], strength:"EDT", budget:"under-60", longevity:"5-7h", projection:"moderate", notes:["green apple","lotus","musk"] },
 
-    // Niche
+    /* Niche */
     { id:"pdm-layton", name:"Layton", brand:"Parfums de Marly", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Parfums_de_Marly_Layton.jpg/480px-Parfums_de_Marly_Layton.jpg", styles:["sweet","spicy","amber"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10-12h", projection:"strong", notes:["apple","vanilla","cardamom"] },
     { id:"pdm-herod", name:"Herod", brand:"Parfums de Marly", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Parfums_de_Marly_Herod.jpg/480px-Parfums_de_Marly_Herod.jpg", styles:["sweet","spicy","woody"], occasions:["date","evening"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["tobacco","vanilla","cinnamon"] },
     { id:"initio-side-effect", name:"Side Effect", brand:"Initio", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Initio_Side_Effect.jpg/480px-Initio_Side_Effect.jpg", styles:["sweet","boozy","spicy"], occasions:["date","evening","club"], seasons:["fall","winter"], strength:"Extrait", budget:"250+", longevity:"12h", projection:"strong", notes:["rum","vanilla","cinnamon"] },
@@ -319,34 +331,15 @@
     { id:"amouage-reflection-man", name:"Reflection Man", brand:"Amouage", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Amouage_Reflection_Man.jpg/480px-Amouage_Reflection_Man.jpg", styles:["fresh","floral","woody"], occasions:["formal","office","wedding"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"8-10h", projection:"strong", notes:["neroli","jasmine","sandalwood"] },
     { id:"byredo-gypsy", name:"Gypsy Water", brand:"Byredo", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Byredo_Gypsy_Water.jpg/480px-Byredo_Gypsy_Water.jpg", styles:["fresh","woody","aromatic"], occasions:["casual","office"], seasons:["spring","summer"], strength:"EDP", budget:"250+", longevity:"6-8h", projection:"soft", notes:["bergamot","juniper","vanilla"] },
 
-    // Extra designer
     { id:"dior-homme-intense", name:"Dior Homme Intense", brand:"Dior", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Dior_Homme_Intense_bottle.jpg/480px-Dior_Homme_Intense_bottle.jpg", styles:["sweet","powdery","woody"], occasions:["date","evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"120-250", longevity:"10h", projection:"moderate", notes:["iris","cacao","cedar"] },
     { id:"ysl-tuxedo", name:"Tuxedo", brand:"Yves Saint Laurent (Le Vestiaire)", type:"niche", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/YSL_Tuxedo_Le_Vestiaire.jpg/480px-YSL_Tuxedo_Le_Vestiaire.jpg", styles:["spicy","amber","sweet"], occasions:["evening","formal"], seasons:["fall","winter"], strength:"EDP", budget:"250+", longevity:"10h", projection:"moderate", notes:["patchouli","vanilla","spices"] },
     { id:"prada-ldros", name:"Luna Rossa Ocean EDP", brand:"Prada", type:"designer", image:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Prada_Luna_Rossa_Ocean_EDP.jpg/480px-Prada_Luna_Rossa_Ocean_EDP.jpg", styles:["fresh","aquatic","sweet"], occasions:["office","casual"], seasons:["spring","summer"], strength:"EDP", budget:"120-250", longevity:"7-9h", projection:"moderate", notes:["sea notes","iris","vanilla"] },
   ];
-
   const HOUSES = Array.from(new Set(FRAGS.map(f => f.brand))).sort();
-  const $ = s => document.querySelector(s);
-  const $$ = s => Array.from(document.querySelectorAll(s));
-  const FAVORITES_KEY = 'nuscent:favorites';
-  const QUIZ_KEY = 'nuscent:quiz';
-  const LS = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
-  const fmtPrice = t => ({"under-60":"Under $60","60-120":"$60–$120","120-250":"$120–$250","250+":"$250+"}[t]||t);
 
-  // House chips
-  function renderHouses(){
-    const wrap = $('#houseChips'); wrap.innerHTML='';
-    const all = Object.assign(document.createElement('button'),{className:'chip',textContent:'All Houses'}); all.dataset.active='true'; wrap.appendChild(all);
-    for(const h of HOUSES){ wrap.appendChild(Object.assign(document.createElement('button'),{className:'chip',textContent:h})); }
-    wrap.addEventListener('click', (e)=>{
-      if(!(e.target instanceof HTMLElement) || !e.target.classList.contains('chip')) return;
-      $$('#houseChips .chip').forEach(x=>x.dataset.active='false'); e.target.dataset.active='true';
-      state.house = e.target.textContent==='All Houses' ? '' : e.target.textContent; renderCatalog();
-    });
-  }
-
-  // Filters
+  /* ---------- Catalog rendering ---------- */
   const state = { q:'', style:'', budget:'', type:'', house:'' };
+
   function applyFilters(items){
     return items.filter(f =>
       (!state.q || (f.name+f.brand+f.styles.join(' ')+(f.notes||[]).join(' ')).toLowerCase().includes(state.q.toLowerCase())) &&
@@ -358,18 +351,26 @@
   }
 
   function renderCardData(tpl, f, favs){
-    tpl.querySelector('[data-badge]').textContent = `${f.type==='niche'?'Niche':'Designer'} • ${f.brand}`;
+    tpl.querySelector('[data-badge]').textContent = f.brand; // minimal label
     tpl.querySelector('[data-title]').textContent = f.name;
     tpl.querySelector('[data-sub]').textContent = `${f.styles.join(' · ')} • ${fmtPrice(f.budget)}`;
+
     const img = tpl.querySelector('[data-img]');
     img.dataset.title = f.name; img.dataset.brand = f.brand;
     img.alt = `${f.brand} ${f.name} bottle`;
     img.src = f.image || createFallback(f.name, f.brand);
 
     const tags = tpl.querySelector('[data-tags]');
-    [f.seasons.join('/'), ...(f.occasions||[])].slice(0,4).forEach(t=>{
-      tags.appendChild(Object.assign(document.createElement('span'),{className:'tag',textContent:t}));
+    const allTags = [f.seasons.join('/'), ...(f.occasions || [])].filter(Boolean);
+    allTags.slice(0,2).forEach(t=>{
+      const span = Object.assign(document.createElement('span'), { className:'tag', textContent:t });
+      tags.appendChild(span);
     });
+    if (allTags.length > 2) {
+      const more = Object.assign(document.createElement('span'), { className:'tag', textContent: `+${allTags.length - 2} more` });
+      more.title = allTags.slice(2).join(', ');
+      tags.appendChild(more);
+    }
 
     const favBtn = tpl.querySelector('.fav');
     favBtn.setAttribute('aria-pressed', favs.has(f.id) ? 'true' : 'false');
@@ -384,11 +385,12 @@
       await navigator.clipboard.writeText(`${f.brand} ${f.name}`); alert('Copied to clipboard');
     });
     const a = tpl.querySelector('[data-search]');
-    a.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`; a.textContent='Find online';
+    a.href = `https://www.google.com/search?q=${encodeURIComponent(f.brand + ' ' + f.name + ' buy')}`;
   }
 
   function renderCatalog(list=FRAGS){
-    const wrap = $('#catalog'); wrap.innerHTML=''; const favs = new Set(LS.get(FAVORITES_KEY, []));
+    const wrap = $('#catalog'); wrap.innerHTML='';
+    const favs = new Set(LS.get(FAVORITES_KEY, []));
     for(const f of applyFilters(list)){
       const tpl = document.importNode($('#itemTpl').content, true);
       renderCardData(tpl, f, favs);
@@ -396,7 +398,17 @@
     }
   }
 
-  // Filter UI events
+  function renderHouses(){
+    const wrap = $('#houseChips'); wrap.innerHTML='';
+    const all = Object.assign(document.createElement('button'),{className:'chip',textContent:'All Houses'}); all.dataset.active='true'; wrap.appendChild(all);
+    for(const h of HOUSES){ wrap.appendChild(Object.assign(document.createElement('button'),{className:'chip',textContent:h})); }
+    wrap.addEventListener('click', (e)=>{
+      if(!(e.target instanceof HTMLElement) || !e.target.classList.contains('chip')) return;
+      $$('#houseChips .chip').forEach(x=>x.dataset.active='false'); e.target.dataset.active='true';
+      state.house = e.target.textContent==='All Houses' ? '' : e.target.textContent; renderCatalog();
+    });
+  }
+
   $('#search').addEventListener('input', e=>{ state.q=e.target.value; renderCatalog(); });
   $('#styleSelect').addEventListener('change', e=>{ state.style=e.target.value; renderCatalog(); });
   $('#budgetSelect').addEventListener('change', e=>{ state.budget=e.target.value; renderCatalog(); });
@@ -408,7 +420,6 @@
     renderCatalog();
   });
 
-  // Favorites quick view
   $('#favoritesBtn').addEventListener('click', ()=>{
     const ids = new Set(LS.get(FAVORITES_KEY, [])); const favs = FRAGS.filter(f=>ids.has(f.id));
     if(!favs.length){ alert('No favorites yet. Tap ☆ on any fragrance.'); return; }
@@ -418,12 +429,7 @@
     renderCatalog(favs); location.hash='#explore';
   });
 
-  // Mobile sheet
-  $('#openMenu').addEventListener('click', ()=> $('#sheet').dataset.open='true');
-  $('#closeMenu').addEventListener('click', ()=> $('#sheet').dataset.open='false');
-  $('#sheet').addEventListener('click', e=>{ if(e.target.matches('[data-close], .sheet')) $('#sheet').dataset.open='false' });
-
-  // Quiz
+  /* ---------- Quiz ---------- */
   const QUESTIONS = [
     { key:'season', text:'What season are you buying for first?', options:['spring','summer','fall','winter','all'] },
     { key:'vibe', text:'Which vibe fits you best?', options:['fresh','citrus','aquatic','green','woody','spicy','sweet','smoky','amber'] },
@@ -436,7 +442,6 @@
     { key:'avoid', text:'Any note to avoid?', options:['none','vanilla','oud','amber','lavender','tobacco'] },
     { key:'flex', text:'Prefer a versatile “one-bottle” pick?', options:['yes','no'] },
   ];
-
   let qi=0, answers={};
   const label = v => ({'EDP':'EDP','EDT':'EDT','Parfum/Extrait':'Parfum/Extrait','no preference':'No preference','under-60':'Under $60','60-120':'$60–$120','120-250':'$120–$250','250+':'$250+'}[v]||v[0].toUpperCase()+v.slice(1));
 
@@ -515,7 +520,8 @@
     });
   }
 
-  function showRecommendations(){
+  // central place to reveal results & navigate
+  function revealResults(){
     const list = computeResults();
     const wrap = $('#recGrid'); wrap.innerHTML='';
     const favs = new Set(LS.get(FAVORITES_KEY, []));
@@ -526,29 +532,45 @@
     }
     renderBasedOn();
     $('#recommendations').style.display='';
+    // navigate to quiz section reliably (works from Hero & top-right button too)
+    const target = document.getElementById('quiz');
+    if(target && target.scrollIntoView){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    // also set hash, so refresh keeps you here
+    const url = new URL(location.href); url.hash = '#quiz'; history.replaceState(null,'',url);
   }
 
+  // expose for reuse
+  function showRecommendations(){ revealResults(); }
+
   // Quiz controls
-  $('#openQuizBtn').addEventListener('click', openQuiz);
-  $('#heroQuiz').addEventListener('click', openQuiz);
-  $('#launchQuiz').addEventListener('click', openQuiz);
+  const openers = ['#openQuizBtn','#heroQuiz','#launchQuiz'];
+  openers.forEach(sel=>{
+    const el = document.querySelector(sel);
+    if(el) el.addEventListener('click', openQuiz);
+  });
+
   $('#prevQ').addEventListener('click', ()=>{ if(qi>0){ qi--; updateProgress(); renderQ(); } });
   $('#skipQ').addEventListener('click', ()=>{ qi=Math.min(qi+1, QUESTIONS.length-1); updateProgress(); renderQ(); });
   $('#nextQ').addEventListener('click', ()=>{
     if(qi<QUESTIONS.length-1){ qi++; updateProgress(); renderQ(); }
     else{
       const d=$('#quizModal'); if(d.open) d.close();
-      LS.set(QUIZ_KEY,{when:Date.now(),answers}); showRecommendations(); location.hash='#quiz';
+      LS.set(QUIZ_KEY,{when:Date.now(),answers});
+      revealResults(); // <-- always reveal here
     }
   });
 
-  // First-time prompt
-  window.addEventListener('load', ()=>{
+  /* ---------- Boot ---------- */
+  function boot(){
     renderHouses(); renderCatalog();
     const prior = LS.get(QUIZ_KEY);
     if(!prior){ setTimeout(openQuiz, 600); }
-    else { answers = prior.answers || {}; if(Object.keys(answers).length) showRecommendations(); }
-  });
+    else {
+      answers = prior.answers || {};
+      if(Object.keys(answers).length) revealResults();
+    }
+  }
+  window.addEventListener('load', boot);
 
   // Share link
   $('#copyShare').addEventListener('click', async ()=>{
@@ -560,8 +582,13 @@
   // Import answers from URL
   (function(){
     const p = new URLSearchParams(location.search).get('answers');
-    if(p){ try{ answers = JSON.parse(decodeURIComponent(escape(atob(p)))); showRecommendations(); location.hash='#quiz'; } catch{} }
+    if(p){ try{ answers = JSON.parse(decodeURIComponent(escape(atob(p)))); revealResults(); } catch{} }
   })();
+
+  // Mobile sheet close helpers
+  $('#openMenu').addEventListener('click', ()=> $('#sheet').dataset.open='true');
+  $('#closeMenu').addEventListener('click', ()=> $('#sheet').dataset.open='false');
+  $('#sheet').addEventListener('click', e=>{ if(e.target.matches('[data-close], .sheet')) $('#sheet').dataset.open='false' });
   </script>
 </body>
 </html>
